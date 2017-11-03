@@ -10,7 +10,7 @@ http.createServer((request, response) => {
   // 'end' event 才會被 fired
   request.on('data', (chunk) => {
     postData += chunk;
-
+    
     console.log(
       ' 接收的 POST data ⽚段 k: [' + chunk + '].'
     );
@@ -26,8 +26,47 @@ http.createServer((request, response) => {
         else {
           response.writeHead(200, {
             'Content-Type': 'text/html'
-            //'Content-Type': "text/css"
+
+
+          });
+
+          response.write(data);
+          response.end();
+        }
+      });
+
+      break;
+
+      case '/assets/css/styles.css':
+      fs.readFile('../htdocs/assets/css/styles.css', (err, data) => {
+        if (err) {
+          console.log(' 檔案讀取錯誤');
+        }
+        else {
+          response.writeHead(200, {
+
+            'Content-Type': "text/css"
             //'Content-Type': "image/png"
+
+          });
+
+          response.write(data);
+          response.end();
+        }
+      });
+
+      break;
+
+      case '/assets/png/SokobanClone_byVellidragon.png':
+      fs.readFile('../htdocs/assets/png/SokobanClone_byVellidragon.png', (err, data) => {
+        if (err) {
+          console.log(' 檔案讀取錯誤');
+        }
+        else {
+          response.writeHead(200, {
+
+
+            'Content-Type': "image/png"
 
           });
 
