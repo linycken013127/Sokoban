@@ -1,46 +1,23 @@
 'use strict';
 
-let http = require('http');
+ let http = require('http');
 
-http.createServer((request, response) => {
+ http.createServer((request, response) => {
+ request.on('end', () => {
+ console.log('Request method: ' + request.method);
+ console.log('Request url: ' + request.url);
+});
 
-let fs = require('fs')
-//file system檔案系統
-
-fs.readFile('../htdocs/index.html', (err, data) => {
-//一個.代表當前資料夾，兩個..代表上一層資料夾
-//相對路徑由現在位置去尋找檔案在哪
+ // 傳送 HTTP header
+ // HTTP Status: 200 : OK
+ // Content Type: text/plain
  response.writeHead(200, {
- 'Content-Type': 'text/html'
+ 'Content-Type': 'text/plain'
  });
 
- response.write(data);
-
- response.end();
- });
+ // 傳送回應內容。
+ response.end('Hello World!\n');
  }).listen(8088);
 
  // log message to Console
- console.log(' 伺服器啟動，連線 url: http://127.0.0.1:8088/');
-/*'use strict';
-
-let http = require('http');
-
-http.createServer((require, response) => {
-
-let fs = require('fs')
-
-  fs.readFile('../htdocs/index.html', (err,data) => {
-
-    response.writeHead(200, {
-      'Content-Type': 'text/html'
-    });
-
-    response.write(data);
-
-    response.end();
-
-  });
-}).listen(8088);
-
-console.log('伺服器啟動，連線 url:  http://127.0.0.1:8088/');*/
+ console.log('Server running at http://127.0.0.1:8088/');
