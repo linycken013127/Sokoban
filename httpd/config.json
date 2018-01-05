@@ -13,7 +13,7 @@
 
   },
   "/sokoban.js": {
-    "url": "../htdocs/assets/js/index.js",
+    "url": "../htdocs/assets/js/sokoban.js",
     "type": "text/js"
 
   }
