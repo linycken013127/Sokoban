@@ -33,6 +33,10 @@ const SOKOBAN = {
   MAN: '@',
   MAN_ON_GOAL: '+',
   WALL: '#',
+  DOWN: 'd',
+  LEFT: 'l',
+  RIGHT: 'r',
+  UP: 'u',
 };
 
 /**
@@ -91,64 +95,70 @@ let tileset = {
   src: 'SokobanClone_byVellidragon.png',
 
   tile: {
-    box: {
+    [SOKOBAN.BOX]: {
       x: 0,
       y: 0 ,
       width: 32,
       height: 32,
     },
-    boxOnGoal: {
+
+    [SOKOBAN.BOX_ON_GOAL]: {
       x: 32,
       y: 0,
       width: 32,
       height: 32,
     },
-    wall: {
+
+    [SOKOBAN.WALL]: {
       x: 64,
       y: 0,
       width: 32,
       height: 32,
     },
 
-    floor: {
+    [SOKOBAN.FLOOR]: {
       x: 0,
       y: 32,
       width: 32,
       height: 32,
     },
-    goal: {
+
+    [SOKOBAN.GOAL]: {
       x: 32,
       y: 32,
       width: 32,
       height: 32,
     },
-    ground: {
+
+    [SOKOBAN.GROUND]: {
       x: 64,
       y: 32,
       width: 32,
       height: 32,
     },
 
-    faceRight: {
+    [SOKOBAN.RIGHT]: {
       x: 0,
       y: 64,
       width: 32,
       height: 32,
     },
-    faceDown: {
+
+    [SOKOBAN.DOWN]: {
       x: 32,
       y: 64,
       width: 32,
       height: 32,
     },
 
-    faceUp: {
+    [SOKOBAN.UP]: {
       x: 0,
       y: 96,
       width: 32,
       height: 32,
     },
-    faceLeft: {
+
+    [SOKOBAN.LEFT]: {
       x: 32,
       y: 96,
       width: 32,
@@ -476,22 +486,22 @@ let sokoban = {
     };
 
     if (this.isMan(this.cellDown(cell))) {
-      this.man = this.faceUp;
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.UP];
       this.moveManUp(cell);
     }
 
     if (this.isMan(this.cellLeft(cell))) {
-      this.man = this.faceRight;
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.RIGHT];
       this.moveManRight(cell);
     }
 
     if (this.isMan(this.cellRight(cell))) {
-      this.man = this.faceLeft;
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.LEFT];
       this.moveManLeft(cell);
     }
 
     if (this.isMan(this.cellUp(cell))) {
-      this.man = this.faceDown;
+      this.tiling[SOKOBAN.MAN] = this.tiling[SOKOBAN.DOWN];
       this.moveManDown(cell);
     }
   },
@@ -509,25 +519,22 @@ let sokoban = {
         this.brush.save();
         this.brush.translate(32*x, 32*y);
 
-        Object.entries(SOKOBAN).some(([key, value]) => {
-          if (value == this.level[y].charAt(x)) {
-            switch (value) {
-              case SOKOBAN.MAN:
-                this.floor();
+        let value = this.level[y].charAt(x);
 
-                break;
+        switch (value) {
+          case SOKOBAN.MAN:
+            this.tiling[SOKOBAN.FLOOR]();
 
-              case SOKOBAN.MAN_ON_GOAL:
-                this.goal();
+            break;
 
-                break;
-            };
+          case SOKOBAN.MAN_ON_GOAL:
+            this.tiling[SOKOBAN.GOAL]();
+            value = SOKOBAN.MAN;
 
-            this[this.tiling[key]]();
+            break;
+        };
 
-            return true;
-          };
-        });
+        this.tiling[value]();
 
         this.brush.restore();
       };
@@ -547,16 +554,7 @@ let sokoban = {
   /**
    * 貼圖函式和指令的對應表
    */
-  tiling: {
-    BOX: 'box',
-    BOX_ON_GOAL: 'boxOnGoal',
-    FLOOR: 'floor',
-    GOAL: 'goal',
-    GROUND: 'ground',
-    MAN: 'man',
-    MAN_ON_GOAL: 'man',
-    WALL: 'wall',
-  },
+  tiling: {},
 
   /**
    * 遊戲更新介面函式
@@ -565,8 +563,6 @@ let sokoban = {
    */
   update: function (e) {
     this.move(e);
-
-    alert('You win');//從此檢查
     this.paint();
   },
 };
@@ -581,9 +577,9 @@ let controlPane = (sokoban) => {
   let choices = [ '第一關', '第二關', '第三關' ];
 
   let section = document.createElement('section');
-  section.style.gridArea = '5 / 2 / 6 / 5';//style css屬性
+  section.style.gridArea = '5 / 2 / 6 / 5';
 
-  choices.forEach((text, level) => {//不管陣列元素有幾個跑幾個
+  choices.forEach((text, level) => {
     let btn = document.createElement('button');
 
     btn.style.backgroundColor = '#007fff5f';
@@ -594,7 +590,6 @@ let controlPane = (sokoban) => {
     btn.value = level;
 
     btn.addEventListener('click', e => {
-      //alert(`${e.target.value} clicked`);
       sokoban.start(e.target.value);
     });
 
@@ -619,16 +614,16 @@ let newGame = (ctx, tileset) => {
   let spriteSheet = new Image();
   spriteSheet.src = tileset.src;
 
-  Object.keys(tileset.tile).forEach(key => {
-    tileset.tile[key].y += 6 * 64;
+  Object.entries(tileset.tile).forEach(([key, value]) => {
+    value.y += 6 * 64;
 
-    game[key] = tile.bind(
-      game, spriteSheet, tileset.tile[key]
+    game.tiling[key] = tile.bind(
+      game, spriteSheet, value
     );
   });
 
   game.brush = ctx;
-  game.man = game.faceUp;
+  game.tiling[SOKOBAN.MAN] = game.tiling[SOKOBAN.UP];
 
   return game;
 };
