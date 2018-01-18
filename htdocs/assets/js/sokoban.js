@@ -436,8 +436,24 @@ let prototypeGameState = {
     this.level[y] = replaceAt(this.level[y], x, SOKOBAN.MAN_ON_GOAL);
 
     return this;
-  }
-};
+  },
+
+  GameSlove: function(){
+    var solve = true,r,c;
+
+    for(var r=0;r<this.level.length;r++){
+      for(var c=0;c<this.level[r].length;c++){
+        if(this.level[r][c]==SOKOBAN.BOX||this.level[r][c]==SOKOBAN.GOAL){
+          solve = false;
+        }
+      }
+    }
+      if(solve){
+        alert("gg");
+      }
+      }
+    };
+
 
 /**
  * 繪出盤面上的格線
@@ -561,9 +577,10 @@ let sokoban = {
    *
    * @returns {undefined}
    */
-  update: function (e) {
+  update: function (e,r,c) {
     this.move(e);
     this.paint();
+    this.GameSlove();
   },
 };
 
